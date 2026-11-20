@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Genome Universe Studio</title>
+<style>
+:root {
+  --bg:#080d1c; --panel:#101a30; --panel2:#14213b;
+  --text:#edf4ff; --muted:#94a6c5; --cyan:#55e5e0;
+  --purple:#a78bfa; --border:#263653; --green:#75e0ad;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:Inter,system-ui,Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:255px;background:#0b1427;border-right:1px solid var(--border);
+padding:22px 14px;flex-shrink:0}
+.brand{font-size:19px;font-weight:800;letter-spacing:1px;
+color:var(--cyan);padding:10px 8px 24px}
+.brand small{display:block;font-size:10px;color:var(--muted);
+letter-spacing:3px;margin-top:5px}
+.nav-label{font-size:10px;color:var(--muted);letter-spacing:2px;
+padding:15px 10px 8px}
+.nav button{width:100%;text-align:left;color:var(--muted);
+background:transparent;border:0;padding:11px 12px;border-radius:9px;
+margin:2px 0;font-size:13px}
+.nav button:hover,.nav button.active{background:#182b47;color:var(--cyan)}
+.main{flex:1;min-width:0;padding:28px 4%;max-width:1500px;margin:auto}
+.top{display:flex;justify-content:space-between;align-items:center;
+gap:15px;margin-bottom:30px}
+.badge{border:1px solid #276b72;color:var(--cyan);padding:7px 12px;
+border-radius:30px;font-size:11px}
+h1{font-size:clamp(27px,4vw,42px);margin:8px 0}
+h2{font-size:22px}
+p{color:var(--muted);line-height:1.7}
+.eyebrow{font-size:11px;letter-spacing:3px;color:var(--cyan)}
+.hero{padding:32px;border:1px solid var(--border);border-radius:20px;
+background:radial-gradient(ellipse at 85% 15%,#263c68 0,transparent 48%),
+linear-gradient(135deg,#14233e,#0e172b);margin-bottom:25px}
+.hero p{max-width:650px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+gap:14px;margin:20px 0}
+.card{background:var(--panel);border:1px solid var(--border);
+border-radius:15px;padding:19px;min-width:0}
+.card h3{margin:5px 0 8px;font-size:16px}
+.card p{font-size:12px}
+.module-card{cursor:pointer;transition:.2s}
+.module-card:hover{transform:translateY(-3px);border-color:var(--cyan)}
+.icon{font-size:25px;margin-bottom:12px}
+.panel{background:var(--panel);border:1px solid var(--border);
+border-radius:16px;padding:22px;margin:18px 0}
+label{display:block;font-size:12px;color:var(--muted);margin:12px 0 6px}
+input,textarea,select{width:100%;background:#091326;color:var(--text);
+border:1px solid var(--border);border-radius:9px;padding:12px;
+outline:none}
+textarea{min-height:110px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--cyan)}
+.btn{background:var(--cyan);color:#07121e;border:0;border-radius:9px;
+padding:11px 16px;font-weight:700;margin:10px 6px 5px 0}
+.btn.secondary{background:#243653;color:var(--text)}
+.result{background:#091326;border:1px solid var(--border);
+padding:15px;border-radius:10px;margin-top:14px;overflow-wrap:anywhere}
+.stat{font-size:25px;color:var(--cyan);font-weight:800}
+.muted{color:var(--muted);font-size:12px}
+.sequence{font-family:monospace;letter-spacing:2px;line-height:2;
+overflow-wrap:anywhere}
+table{border-collapse:collapse;width:100%;margin-top:12px}
+td,th{border:1px solid var(--border);padding:10px;text-align:center}
+th{color:var(--cyan);background:#14233d}
+img.preview{max-width:100%;max-height:250px;object-fit:contain;
+border-radius:10px;margin-top:12px}
+.bar{height:9px;background:#263653;border-radius:10px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--cyan)}
+.footer{border-top:1px solid var(--border);margin-top:40px;
+padding:20px 0;color:var(--muted);font-size:11px}
+.mobile-menu{display:none}
+@media(max-width:760px){
+.layout{display:block}
+.sidebar{width:100%;border-right:0;border-bottom:1px solid var(--border);
+padding:10px}
+.brand{padding:8px}
+.nav{display:flex;overflow-x:auto;gap:5px}
+.nav-label{display:none}
+.nav button{white-space:nowrap;width:auto;font-size:11px}
+.main{padding:18px}
+.hero{padding:22px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">GENOME UNIVERSE
+    <small>STUDIO · BIOINTELLIGENCE</small>
+  </div>
+  <div class="nav-label">PLATFORM</div>
+  <nav class="nav" id="nav"></nav>
+</aside>
+
+<main class="main">
+  <div class="top">
+    <div>
+      <div class="eyebrow">GENETICS • BIOINFORMATICS • DISCOVERY</div>
+      <div class="muted">Interactive scientific learning platform</div>
+    </div>
+    <span class="badge">● SYSTEM ONLINE</span>
+  </div>
+  <div id="content"></div>
+  <div class="footer">
+    GENOME UNIVERSE STUDIO · Educational simulations only.
+    Not intended for clinical or medical decisions.
+  </div>
+</main>
+</div>
+
+<script>
+const modules = [
+ ["home","⌂","Genome Universe"],
+ ["fusion","🧬","Genome Fusion Studio"],
+ ["phenotype","◉","Phenotype Vision"],
+ ["genie","✧","GENIE"],
+ ["dna","⌁","DNA Intelligence Lab"],
+ ["mutation","⚡","Mutation Studio"],
+ ["inheritance","▦","Inheritance Simulator"],
+ ["evolution","◌","Evolution Simulator"],
+ ["cell","◉","Cell Explorer"],
+ ["crispr","✂","CRISPR Explorer"],
+ ["bio","⌘","Bioinformatics Lab"],
+ ["quiz","◇","Genetics Challenge"],
+ ["research","⌕","Research Observatory"]
+];
+
+const descriptions = {
+ fusion:"Compare two DNA sequences and explore their differences.",
+ phenotype:"Upload images and explore their pixel-level properties.",
+ genie:"Explore genetics concepts through a guided learning assistant.",
+ dna:"Analyse nucleotide composition and complementary strands.",
+ mutation:"Explore how a substitution changes a DNA sequence.",
+ inheritance:"Explore simple Mendelian inheritance using a Punnett square.",
+ evolution:"Model how allele frequency can change over generations.",
+ cell:"Explore the structures and functions of a cell.",
+ crispr:"Understand the conceptual stages of CRISPR-Cas9.",
+ bio:"Explore basic bioinformatics sequence tools.",
+ quiz:"Test your knowledge of genetics.",
+ research:"Organise research notes and explore scientific databases."
+};
+
+const $ = id => document.getElementById(id);
+let current = "home";
+let imageA = null, imageB = null;
+let generationData = [];
+
+function renderNav(){
+ $("nav").innerHTML = modules.map(m =>
+ `<button class="${current===m[0]?'active':''}" data-page="${m[0]}">${m[1]} ${m[2]}</button>`
+ ).join("");
+}
+$("nav").addEventListener("click",e=>{
+ const b=e.target.closest("[data-page]");
+ if(b) openPage(b.dataset.page);
+});
+
+function openPage(id){
+ current=id; renderNav(); render();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function home(){
+ return `
+ <section class="hero">
+  <div class="eyebrow">WELCOME TO THE GENETIC FRONTIER</div>
+  <h1>Explore the language of life.</h1>
+  <p>Investigate DNA, genetic variation, inheritance, evolution and cellular biology through interactive scientific workbenches.</p>
+  <button class="btn" onclick="openPage('fusion')">Enter Genome Fusion →</button>
+  <button class="btn secondary" onclick="openPage('dna')">Open DNA Lab</button>
+ </section>
+ <h2>Research modules</h2>
+ <p>Choose a laboratory to begin your exploration.</p>
+ <div class="grid">
+ ${modules.slice(1).map(m=>`
+ <div class="card module-card" onclick="openPage('${m[0]}')">
+ <div class="icon">${m[1]}</div><h3>${m[2]}</h3>
+ <p>${descriptions[m[0]]}</p>
+ <span class="eyebrow">OPEN MODULE →</span>
+ </div>`).join("")}
+ </div>`;
+}
+
+function sequenceTools(){
+ return `
+ <div class="panel">
+ <h2>Sequence input</h2>
+ <p>Enter a DNA sequence using A, T, G and C. Spaces and line breaks are ignored.</p>
+ <label>DNA sequence</label>
+ <textarea id="seq" placeholder="ATGCGTACGTAGCT..."></textarea>
+ <button class="btn" onclick="analyseDNA()">Analyse sequence</button>
+ <div id="dnaResult"></div>
+ </div>`;
+}
+
+function dnaStats(s){
+ const counts={A:0,T:0,G:0,C:0};
+ for(const x of s) counts[x]++;
+ const gc=s.length?(counts.G+counts.C)/s.length*100:0;
+ return {counts,gc};
+}
+function cleanSeq(s){return s.toUpperCase().replace(/\s/g,"");}
+function validSeq(s){return s.length>0 && /^[ATGC]+$/.test(s)}
+function complement(s){
+ return s.split("").map(x=>({A:"T",T:"A",G:"C",C:"G"})[x]).join("");
+}
+function analyseDNA(){
+ const s=cleanSeq($("seq").value);
+ if(!validSeq(s)){ $("dnaResult").innerHTML='<div class="result">Please enter a valid DNA sequence containing only A, T, G and C.</div>';return}
+ const d=dnaStats(s);
+ $("dnaResult").innerHTML=`
+ <div class="grid">
+ <div class="card"><div class="stat">${s.length}</div><div class="muted">Sequence length</div></div>
+ <div class="card"><div class="stat">${d.gc.toFixed(2)}%</div><div class="muted">GC content</div></div>
+ ${Object.entries(d.counts).map(([k,v])=>`<div class="card"><div class="stat">${v}</div><div class="muted">${k} bases</div></div>`).join("")}
+ </div>
+ <div class="result"><b>Complementary strand</b><p class="sequence">${complement(s)}</p></div>`;
+}
+
+function fusion(){
+ return `<div class="panel">
+ <h2>Genome Fusion Studio</h2>
+ <p>Compare two sequences position by position. This is a simple educational comparison.</p>
+ <label>Sequence A</label><textarea id="seqA" placeholder="ATGCGTAC"></textarea>
+ <label>Sequence B</label><textarea id="seqB" placeholder="ATGAGTAC"></textarea>
+ <button class="btn" onclick="compareSequences()">Compare sequences</button>
+ <div id="fusionResult"></div>
+ </div>`;
+}
+function compareSequences(){
+ const a=cleanSeq($("seqA").value),b=cleanSeq($("seqB").value);
+ if(!validSeq(a)||!validSeq(b)){
+ $("fusionResult").innerHTML='<div class="result">Both sequences must contain valid DNA bases.</div>';return;
+ }
+ let differences=0,positions=[];
+ for(let i=0;i<Math.min(a.length,b.length);i++){
+ if(a[i]!==b[i]){differences++;positions.push(i+1)}
+ }
+ const total=Math.max(a.length,b.length);
+ const identity=total?((total-differences-Math.abs(a.length-b.length))/total*100):0;
+ $("fusionResult").innerHTML=`
+ <div class="grid">
+ <div class="card"><div class="stat">${identity.toFixed(2)}%</div><div class="muted">Positional identity</div></div>
+ <div class="card"><div class="stat">${differences}</div><div class="muted">Different positions in shared region</div></div>
+ <div class="card"><div class="stat">${Math.abs(a.length-b.length)}</div><div class="muted">Length difference</div></div>
+ </div>
+ <div class="result">Different positions: ${positions.length?positions.join(", "):"None in shared region"}</div>`;
+}
+
+function mutation(){
+ return `<div class="panel">
+ <h2>Mutation Studio</h2>
+ <p>Simulate a single-base substitution in a DNA sequence.</p>
+ <label>Original sequence</label><textarea id="mutSeq" placeholder="ATGCGT"></textarea>
+ <label>Position (starting at 1)</label><input id="mutPos" type="number" min="1" value="2">
+ <label>New base</label><select id="mutBase"><option>A</option><option>T</option><option>G</option><option>C</option></select>
+ <button class="btn" onclick="mutate()">Simulate substitution</button>
+ <div id="mutResult"></div></div>`;
+}
+function mutate(){
+ const s=cleanSeq($("mutSeq").value),p=Number($("mutPos").value),n=$("mutBase").value;
+ if(!validSeq(s)||!Number.isInteger(p)||p<1||p>s.length){
+ $("mutResult").innerHTML='<div class="result">Enter a valid sequence and a position within its length.</div>';return;
+ }
+ const old=s[p-1],changed=s.slice(0,p-1)+n+s.slice(p);
+ $("mutResult").innerHTML=`<div class="result">
+ Original: <p class="sequence">${s}</p>
+ Changed: <p class="sequence">${changed}</p>
+ Position ${p}: ${old} → ${n}
+ <p>${old===n?"The selected base is unchanged.":"A substitution was simulated."}</p>
+ </div>`;
+}
+
+function inheritance(){
+ return `<div class="panel">
+ <h2>Genetic Inheritance Simulator</h2>
+ <p>Explore a simplified single-gene Mendelian cross. Use A for the dominant allele and a for the recessive allele.</p>
+ <label>Parent 1</label><select id="parent1"><option>AA</option><option selected>Aa</option><option>aa</option></select>
+ <label>Parent 2</label><select id="parent2"><option>AA</option><option>Aa</option><option>aa</option></select>
+ <button class="btn" onclick="cross()">Generate Punnett square</button>
+ <div id="crossResult"></div></div>`;
+}
+function cross(){
+ const a=$("parent1").value,b=$("parent2").value;
+ let cells=[];
+ for(const x of a) for(const y of b) cells.push(x+y);
+ const counts={AA:0,Aa:0,aa:0};
+ cells.forEach(x=>counts[x.split("").sort().join("")]++);
+ $("crossResult").innerHTML=`
+ <table><tr><th>Parent 1 ↓ / Parent 2 →</th><th>${b[0]}</th><th>${b[1]}</th></tr>
+ <tr><th>${a[0]}</th><td>${a[0]+b[0]}</td><td>${a[0]+b[1]}</td></tr>
+ <tr><th>${a[1]}</th><td>${a[1]+b[0]}</td><td>${a[1]+b[1]}</td></tr></table>
+ <div class="result">Genotype probabilities:
+ ${Object.entries(counts).map(([k,v])=>`${k}: ${(v/4*100)}%`).join(" · ")}</div>`;
+}
+
+function evolution(){
+ return `<div class="panel">
+ <h2>Evolution Simulator</h2>
+ <p>A simplified selection model: the selected allele has a relative fitness advantage. This model excludes mutation, migration and genetic drift.</p>
+ <label>Starting frequency of allele A (%)</label><input id="freq" type="number" min="1" max="99" value="20">
+ <label>Selection advantage (%)</label><input id="adv" type="number" min="0" max="100" value="10">
+ <label>Generations</label><input id="gens" type="number" min="1" max="50" value="10">
+ <button class="btn" onclick="evolve()">Run simulation</button>
+ <div id="evoResult"></div></div>`;
+}
+function evolve(){
+ let p=Number($("freq").value)/100;
+ const adv=Number($("adv").value)/100,g=Number($("gens").value);
+ if(!Number.isFinite(p)||p<=0||p>=1||adv<0||adv>1||!Number.isInteger(g)||g<1||g>50){
+ $("evoResult").innerHTML='<div class="result">Use a starting frequency between 1–99%, advantage between 0–100%, and 1–50 generations.</div>';return;
+ }
+ let rows="";
+ for(let i=0;i<=g;i++){
+ rows+=`<p>Generation ${i}: ${(p*100).toFixed(2)}%</p><div class="bar"><span style="width:${p*100}%"></span></div>`;
+ p=(p*(1+adv))/(1+p*adv);
+ }
+ $("evoResult").innerHTML=`<div class="result">${rows}</div>`;
+}
+
+function phenotype(){
+ return `<div class="panel">
+ <h2>Phenotype Vision · Image Analysis</h2>
+ <p>Upload an image to inspect its dimensions and average pixel colour. This does not reveal DNA, genotype or biological identity.</p>
+ <label>Upload image A</label><input type="file" accept="image/*" id="imageInputA">
+ <div id="imagePreviewA"></div>
+ <label>Upload image B (optional)</label><input type="file" accept="image/*" id="imageInputB">
+ <div id="imagePreviewB"></div>
+ <button class="btn" onclick="analyseImages()">Analyse images</button>
+ <div id="imageResult"></div></div>`;
+}
+function readImage(file,previewId,callback){
+ if(!file)return;
+ const url=URL.createObjectURL(file);
+ const img=new Image();
+ img.onload=()=>{
+ $(previewId).innerHTML=`<img class="preview" src="${url}" alt="Uploaded image preview">`;
+ callback(img);
+ };
+ img.src=url;
+}
+let imgA=null,imgB=null;
+function analyseImages(){
+ const fa=$("imageInputA").files[0],fb=$("imageInputB").files[0];
+ if(!fa){$("imageResult").innerHTML='<div class="result">Upload image A first.</div>';return}
+ const analyse=(img)=>{
+ const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");
+ canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+ ctx.drawImage(img,0,0);
+ const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+ let r=0,g=0,b=0,n=data.length/4;
+ for(let i=0;i<data.length;i+=4){r+=data[i];g+=data[i+1];b+=data[i+2]}
+ return {w:canvas.width,h:canvas.height,r:Math.round(r/n),g:Math.round(g/n),b:Math.round(b/n),brightness:Math.round((r+g+b)/(3*n))};
+ };
+ const url=URL.createObjectURL(fa),a=new Image();
+ a.onload=()=>{
+ const x=analyse(a);
+ let html=`<div class="result"><h3>Image A</h3>
+ Dimensions: ${x.w} × ${x.h}<br>
+ Average RGB: ${x.r}, ${x.g}, ${x.b}<br>
+ Average brightness: ${x.brightness}/255</div>`;
+ if(fb){
+ const u=URL.createObjectURL(fb),b=new Image();
+ b.onload=()=>{
+ const y=analyse(b);
+ html+=`<div class="result"><h3>Image B</h3>
+ Dimensions: ${y.w} × ${y.h}<br>
+ Average RGB: ${y.r}, ${y.g}, ${y.b}<br>
+ Average brightness: ${y.brightness}/255</div>`;
+ $("imageResult").innerHTML=html;
+ };
+ b.src=u;
+ }else $("imageResult").innerHTML=html;
+ };
+ a.src=url;
+}
+
+const quizQuestions=[
+ ["Which molecule stores hereditary information?","DNA",["Protein","Glucose","Lipid"]],
+ ["Which base pairs with adenine in DNA?","Thymine",["Uracil","Cytosine","Guanine"]],
+ ["What is the basic unit of heredity?","Gene",["Cell","Tissue","Organ"]],
+ ["Where does translation occur?","Ribosome",["Nucleus","Golgi body","Lysosome"]],
+ ["What is a change in DNA sequence called?","Mutation",["Diffusion","Osmosis","Respiration"]]
+];
+function quiz(){
+ return `<div class="panel"><h2>Genetics Challenge</h2>
+ <p>Test your genetics knowledge.</p>
+ <button class="btn" onclick="startQuiz()">Start quiz</button>
+ <div id="quizArea"></div></div>`;
+}
+let qi=0,score=0;
+function startQuiz(){qi=0;score=0;showQuestion()}
+function showQuestion(){
+ if(qi>=quizQuestions.length){
+ $("quizArea").innerHTML=`<div class="result"><h2>Quiz complete!</h2><div class="stat">${score}/${quizQuestions.length}</div><button class="btn" onclick="startQuiz()">Try again</button></div>`;return;
+ }
+ const q=quizQuestions[qi],opts=[q[1],...q[2]].sort(()=>Math.random()-.5);
+ $("quizArea").innerHTML=`<div class="result"><p>Question ${qi+1} of ${quizQuestions.length}</p><h3>${q[0]}</h3>
+ ${opts.map(o=>`<button class="btn secondary" onclick="answer('${o}')">${o}</button>`).join("")}
+ <p id="feedback"></p></div>`;
+}
+function answer(v){
+ const q=quizQuestions[qi];
+ const correct=v===q[1];if(correct)score++;
+ $("feedback").textContent=correct?"Correct!":"Correct answer: "+q[1];
+ const buttons=$("quizArea").querySelectorAll("button");
+ buttons.forEach(b=>b.disabled=true);
+ const next=document.createElement("button");next.className="btn";next.textContent="Next question";
+ next.onclick=()=>{qi++;showQuestion()};
+ $("quizArea").appendChild(next);
+}
+
+function cell(){
+ return `<div class="panel"><h2>Cell Explorer</h2>
+ <p>Select an organelle to explore its role in the cell.</p>
+ <div class="grid">
+ ${[
+ ["Nucleus","Stores genetic material and helps regulate cell activity."],
+ ["Mitochondrion","Produces much of the cell's ATP through cellular respiration."],
+ ["Ribosome","Builds proteins using messenger RNA."],
+ ["Cell membrane","Regulates movement of substances into and out of the cell."],
+ ["Golgi apparatus","Modifies, sorts and packages proteins and lipids."],
+ ["Endoplasmic reticulum","Helps synthesise and transport proteins and lipids."],
+ ["Lysosome","Contains enzymes that break down materials."]
+ ].map(x=>`<button class="card module-card" onclick="showOrganelle('${x[0]}')">${x[0]}</button>`).join("")}
+ </div><div class="result" id="organelleResult">Select an organelle above.</div></div>`;
+}
+function showOrganelle(name){
+ const data={
+ Nucleus:"Stores genetic material and helps regulate cell activity.",
+ Mitochondrion:"Produces much of the cell's ATP through cellular respiration.",
+ Ribosome:"Builds proteins using messenger RNA.",
+ "Cell membrane":"Regulates movement of substances into and out of the cell.",
+ "Golgi apparatus":"Modifies, sorts and packages proteins and lipids.",
+ "Endoplasmic reticulum":"Helps synthesise and transport proteins and lipids.",
+ Lysosome:"Contains enzymes that break down materials."
+ };
+ $("organelleResult").innerHTML=`<h3>${name}</h3><p>${data[name]}</p>`;
+}
+
+function crispr(){
+ return `<div class="panel"><h2>CRISPR Explorer</h2>
+ <p>Explore the conceptual stages of CRISPR-Cas9 gene editing.</p>
+ <div class="grid">
+ <div class="card"><div class="stat">01</div><h3>Guide RNA</h3><p>A guide RNA helps direct the Cas9 protein to a matching DNA target.</p></div>
+ <div class="card"><div class="stat">02</div><h3>Target recognition</h3><p>Cas9 and guide RNA recognise a complementary DNA target near a PAM sequence.</p></div>
+ <div class="card"><div class="stat">03</div><h3>DNA cut</h3><p>Cas9 can create a break in the DNA at the target location.</p></div>
+ <div class="c
